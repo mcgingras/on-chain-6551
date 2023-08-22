@@ -12,9 +12,9 @@ contract Deploy is Script {
         vm.startBroadcast();
         // new Sub();
         Sub sub = Sub(0xF40543a338a670be62BF15fFebdc671af1f8c099);
-        sub.mint(4);
-        sub.mint(5);
-        sub.mint(6);
+        sub.mint(7);
+        sub.mint(8);
+        sub.mint(9);
         vm.stopBroadcast();
     }
 }

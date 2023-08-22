@@ -26,5 +26,6 @@ These NFTs must exist in the TBA of a given base NFT to show up on the base NFT.
 
 ### Examples
 
-[Base](https://testnets.opensea.io/assets/goerli/0x746950c4cd575d641afd10cbd675b8e327ab9a3c/0)
-[TBA holding Subs for Base](https://testnets.opensea.io/0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63)
+- [Base](https://testnets.opensea.io/assets/goerli/0x746950c4cd575d641afd10cbd675b8e327ab9a3c/0)
+- [TBA holding Subs for Base](https://testnets.opensea.io/0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63)
+- [Loom walkthrough](https://www.loom.com/share/5616f2613a2f4d48995b35b134b3eb13)

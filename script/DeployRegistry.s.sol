@@ -22,7 +22,8 @@ contract Deploy is Script {
         // console.log(tba);
 
         ERC721 collection = ERC721(0xF40543a338a670be62BF15fFebdc671af1f8c099);
-        collection.transferFrom(msg.sender, 0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63, 6);
+        collection.transferFrom(msg.sender, 0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63, 8);
+        collection.transferFrom(msg.sender, 0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63, 9);
         vm.stopBroadcast();
     }
 }
