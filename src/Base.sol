@@ -71,9 +71,8 @@ contract Base is ERC721 {
     address public renderer;
     address public registry;
 
-    function setRenderer(address _renderer, address _registry) public {
+    function setRenderer(address _renderer) public {
         renderer = _renderer;
-        registry = _registry;
     }
 
     function setRegistry(address _registry) public {
