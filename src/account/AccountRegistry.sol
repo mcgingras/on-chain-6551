@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "./interfaces/IRegistry.sol";
-import "./lib/MinimalProxyStore.sol";
+import "../interfaces/IRegistry.sol";
+import "../lib/MinimalProxyStore.sol";
 import "./Account.sol";
 
 /**

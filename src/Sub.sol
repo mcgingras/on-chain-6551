@@ -66,7 +66,7 @@ library Base64 {
 
 
 contract Sub is ERC721Enumerable {
-
+  // can obviously change these if we want to so its not ripping off loot
   string[] private _weapons = [
         "Warhammer",
         "Quarterstaff",
@@ -88,6 +88,78 @@ contract Sub is ERC721Enumerable {
         "Book"
     ];
 
+  string[] private _chestArmor = [
+        "Divine Robe",
+        "Silk Robe",
+        "Linen Robe",
+        "Robe",
+        "Shirt",
+        "Demon Husk",
+        "Dragonskin Armor",
+        "Studded Leather Armor",
+        "Hard Leather Armor",
+        "Leather Armor",
+        "Holy Chestplate",
+        "Ornate Chestplate",
+        "Plate Mail",
+        "Chain Mail",
+        "Ring Mail"
+    ];
+
+  string[] private _headArmor = [
+        "Ancient Helm",
+        "Ornate Helm",
+        "Great Helm",
+        "Full Helm",
+        "Helm",
+        "Demon Crown",
+        "Dragon's Crown",
+        "War Cap",
+        "Leather Cap",
+        "Cap",
+        "Crown",
+        "Divine Hood",
+        "Silk Hood",
+        "Linen Hood",
+        "Hood"
+    ];
+
+  string[] private _waistArmor = [
+        "Ornate Belt",
+        "War Belt",
+        "Plated Belt",
+        "Mesh Belt",
+        "Heavy Belt",
+        "Demonhide Belt",
+        "Dragonskin Belt",
+        "Studded Leather Belt",
+        "Hard Leather Belt",
+        "Leather Belt",
+        "Brightsilk Sash",
+        "Silk Sash",
+        "Wool Sash",
+        "Linen Sash",
+        "Sash"
+    ];
+
+  string[] private _footArmor = [
+        "Holy Greaves",
+        "Ornate Greaves",
+        "Greaves",
+        "Chain Boots",
+        "Heavy Boots",
+        "Demonhide Boots",
+        "Dragonskin Boots",
+        "Studded Leather Boots",
+        "Hard Leather Boots",
+        "Leather Boots",
+        "Divine Slippers",
+        "Silk Slippers",
+        "Wool Shoes",
+        "Linen Shoes",
+        "Shoes"
+    ];
+
     function random(string memory input) internal pure returns (uint256) {
         return uint256(keccak256(abi.encodePacked(input)));
     }
@@ -96,7 +168,7 @@ contract Sub is ERC721Enumerable {
         return _pluck(tokenId, "ITEM", _weapons);
     }
 
-    function _pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal view returns (string memory) {
+    function _pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal pure returns (string memory) {
         uint256 rand = random(string(abi.encodePacked(keyPrefix, toString(tokenId))));
         string memory output = sourceArray[rand % sourceArray.length];
         return output;
