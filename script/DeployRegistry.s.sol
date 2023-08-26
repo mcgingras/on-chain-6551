@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "../src/Account.sol";
-import "../src/AccountRegistry.sol";
+import "../src/account/Account.sol";
+import "../src/account/AccountRegistry.sol";
 import "openzeppelin-contracts/token/ERC721/ERC721.sol";
 
 

@@ -9,13 +9,13 @@ contract TraitData is ERC1967Proxy {
     string public traitType;
 
     // do we need to initialize the ERC721 as well from the impl?
+    // I think we need to make trait initializable with empty constructor
+    // then in our factory we create a new 1967 proxy of data then call initialize on it
     constructor(
       string[] memory _traits,
       string memory _traitType,
-      string memory name,
-      string memory symbol,
       address impl
-    ) ERC1967Proxy(impl, "") {
+    ) ERC1967Proxy(impl, bytes("")) {
         traits = _traits;
         traitType = _traitType;
     }

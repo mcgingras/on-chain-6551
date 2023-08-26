@@ -2,13 +2,25 @@
 pragma solidity ^0.8.13;
 
 import "openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "openzeppelin-contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
 
-abstract contract Trait is ERC721Enumerable {
+// @dev -- does the order of inheritance matter here?
+contract Trait is Initializable, ERC721Enumerable {
   using Strings for uint256;
 
-  function random(string memory input) internal pure returns (uint256) {
+  constructor() Initializable() {}
+
+  function initialize(string calldata _name, string calldata _symbol)
+        external
+        initializer
+    {
+        _setName(_name);
+        _setSymbol(_symbol);
+    }
+
+  function _random(string memory input) internal pure returns (uint256) {
     return uint256(keccak256(abi.encodePacked(input)));
   }
 
@@ -17,7 +29,7 @@ abstract contract Trait is ERC721Enumerable {
   }
 
   function _pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal pure returns (string memory) {
-    uint256 rand = random(string(abi.encodePacked(keyPrefix, tokenId.toString())));
+    uint256 rand = _random(string(abi.encodePacked(keyPrefix, tokenId.toString())));
     string memory output = sourceArray[rand % sourceArray.length];
     return output;
   }
@@ -54,6 +66,4 @@ abstract contract Trait is ERC721Enumerable {
   function mint(uint256 tokenId) public {
     _safeMint(_msgSender(), tokenId);
   }
-
-  constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 }
