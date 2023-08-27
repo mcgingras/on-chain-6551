@@ -16,8 +16,12 @@ contract TraitData is ERC1967Proxy {
       string memory _traitType,
       address impl
     ) ERC1967Proxy(impl, bytes("")) {
+        // membership = address(new ERC1967Proxy(membershipImpl(), bytes("")));
+        // emit MembershipCreated(membership);
+        // IERC721Mage(membership).initialize(membershipOwner, name, symbol, initData);
         traits = _traits;
         traitType = _traitType;
+
     }
 
     function setTraits(string[] memory _traits) public {
