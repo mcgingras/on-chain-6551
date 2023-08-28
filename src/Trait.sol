@@ -133,8 +133,21 @@ contract Trait is ERC721Enumerable {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function getItem(uint256 tokenId) public view returns (string memory) {
-        return _pluck(tokenId, "ITEM", _weapon);
+    function getItemByType(uint256 tokenId, string memory traitType) {
+      // maybe something like require that traitType is in the list of valid types?
+      if (traitType == "WEAPON") {
+        return _pluck(tokenId, "WEAPON", _weapon);
+      } else if (traitType == "CHEST_ARMOR") {
+        return _pluck(tokenId, "CHEST_ARMOR", _chestArmor);
+      } else if (traitType == "HEAD_ARMOR") {
+        return _pluck(tokenId, "HEAD_ARMOR", _headArmor);
+      } else if (traitType == "WAIST_ARMOR") {
+        return _pluck(tokenId, "WAIST_ARMOR", _waistArmor);
+      } else if (traitType == "FOOT_ARMOR") {
+        return _pluck(tokenId, "FOOT_ARMOR", _footArmor);
+      } else {
+        return "INVALID";
+      }
     }
 
     function _pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal pure returns (string memory) {
@@ -187,7 +200,7 @@ contract Trait is ERC721Enumerable {
     function _mint(address to, string memory traitType) internal {
       // require valid type?
       uint256 tokenId = _tokenCount.current();
-      traitDetails[tokenId] = TraitDetails(traitType, getItem(tokenId), false);
+      traitDetails[tokenId] = TraitDetails(traitType, getItemByType(tokenId, traitType), false);
       _safeMint(to, tokenId);
       _tokenCount.increment();
     }
