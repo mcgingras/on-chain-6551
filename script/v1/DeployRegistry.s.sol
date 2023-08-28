@@ -2,10 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "../src/Account.sol";
-import "../src/AccountRegistry.sol";
+import "../../src/Account.sol";
+import "../../src/AccountRegistry.sol";
 import "openzeppelin-contracts/token/ERC721/ERC721.sol";
-
 
 
 // forge script --keystores $ETH_KEYSTORE --sender $ETH_FROM --broadcast --fork-url $GOERLI_RPC_URL script/DeployRegistry.s.sol:Deploy
