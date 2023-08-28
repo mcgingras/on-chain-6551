@@ -4,14 +4,15 @@ pragma solidity ^0.8.13;
 import "openzeppelin-contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
-
-import "./Trait.sol";
-
+import "openzeppelin-contracts/utils/Counters.sol";
 
 // no owner protection or anything
 // purely a quick and dirty experiment
 contract Character is ERC721 {
   using Strings for uint256;
+  using Counters for Counters.Counter;
+
+  Counters.Counter private _tokenCount;
   address public renderer;
   address public registry;
 
@@ -20,6 +21,11 @@ contract Character is ERC721 {
     string traitType;
     string name;
     bool equipped;
+  }
+
+  constructor(address _renderer, address _registry) ERC721("Loot2: Tokenbound Character", "LOOT2") {
+    renderer = _renderer;
+    registry = _registry;
   }
 
   function setRenderer(address _renderer) public {
@@ -36,6 +42,7 @@ contract Character is ERC721 {
     address tba = registryContract.account(5, address(this), tokenId);
     uint256[] memory tokens = traitContract.tokensOfOwner(tba);
 
+    // pre-computed base64 encoding of "empty" SVG
     if (tokens.length == 0) {
       return "ZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCw8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDM1MCAzNTAiPjxzdHlsZT4uYmFzZSB7IGZvbnQtZmFtaWx5OiAiSUJNIFBsZXggTW9ubyIsIG1vbm9zcGFjZTsgZm9udC1zaXplOiAxNHB4OyB0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyB9PC9zdHlsZT48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJibGFjayIgLz48dGV4dCB4PSIxMCIgeT0iMjAiIGNsYXNzPSJiYXNlIGxlZnQiPjwvdGV4dD48L3N2Zz4=";
     }
@@ -69,17 +76,14 @@ contract Character is ERC721 {
     return output;
   }
 
-  function mint(uint256 tokenId) public {
-    _safeMint(_msgSender(), tokenId);
-  }
-
-  constructor(address _renderer) ERC721("Token Bound Loot", "TOOT") {
-      renderer = _renderer;
+  function mint() public {
+    _safeMint(_msgSender(), _tokenCount.current());
+    _tokenCount.increment();
   }
 }
 
-interface Sub {
-  function getItem(uint256 tokenId) external view returns (string memory);
+interface Trait {
+  function getTraitDetails(uint256 tokenId) external view returns (string memory traitType, string memory name, bool equipped);
   function balanceOf(address _owner) external view returns (uint256);
   function tokensOfOwner(address _owner) external view returns (uint256[] memory);
 }

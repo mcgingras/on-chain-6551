@@ -4,11 +4,15 @@ pragma solidity ^0.8.13;
 import "openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
+import "openzeppelin-contracts/utils/Counters.sol";
+
 
 
 // todo: mark each trait as active?
 contract Trait is ERC721Enumerable {
   using Strings for uint256;
+  using Counters for Counters.Counter;
+  Counters.Counter private _tokenCount;
 
   struct TraitDetails {
     string traitType;
@@ -180,18 +184,20 @@ contract Trait is ERC721Enumerable {
         }
     }
 
-    function _mint(address to, uint256 tokenId, string memory traitType) internal {
+    function _mint(address to, string memory traitType) internal {
       // require valid type?
+      uint256 tokenId = _tokenCount.current();
       traitDetails[tokenId] = TraitDetails(traitType, getItem(tokenId), false);
       _safeMint(to, tokenId);
+      _tokenCount.increment();
     }
 
-    function mint(uint256 tokenId, string memory traitType) public {
-      _mint(msg.sender, tokenId, traitType);
+    function mint(string memory traitType) public {
+      _mint(msg.sender, traitType);
     }
 
-    function mint(address to, uint256 tokenId, string memory traitType) public {
-      _mint(to, tokenId, traitType);
+    function mint(address to, string memory traitType) public {
+      _mint(to, traitType);
     }
 
     // function tbaMint(address to, uint256 tokenId, string memory traitType) public {
