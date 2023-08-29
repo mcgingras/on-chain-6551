@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {console} from "forge-std/console.sol";
 import "openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
@@ -18,13 +17,6 @@ contract Character is ERC721Enumerable {
   Counters.Counter private _tokenCount;
   address public renderer;
   address public registry;
-
-  // todo: figure out how to declare this in one spot
-  struct TraitDetails {
-    string traitType;
-    string name;
-    bool equipped;
-  }
 
   constructor(address _renderer, address _registry) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
     renderer = _renderer;
@@ -44,34 +36,31 @@ contract Character is ERC721Enumerable {
     Registry registryContract = Registry(registry);
     // todo: remove chainId hardcoding
     address tba = registryContract.account(5, address(this), tokenId);
-    uint256[] memory tokens = traitContract.tokensOfOwner(tba);
+    uint256[] memory equippedTraits = traitContract.equippedTraitsOfOwner(tba);
 
     // pre-computed base64 encoding of "empty" SVG
-    if (tokens.length == 0) {
+    if (equippedTraits.length == 0) {
       return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaW5ZTWluIG1lZXQiIHZpZXdCb3g9IjAgMCAzNTAgMzUwIj48c3R5bGU+LmJhc2UgeyBmb250LWZhbWlseTogIklCTSBQbGV4IE1vbm8iLCBtb25vc3BhY2U7IGZvbnQtc2l6ZTogMTJweDsgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsgZmlsbDogI0ZGRiB9PC9zdHlsZT48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJibGFjayIgLz48dGV4dCB4PSIxMCIgeT0iMjAiIGNsYXNzPSJiYXNlIGxlZnQiPkVtcHR5PC90ZXh0Pjwvc3ZnPg==";
     }
 
 
-    // might over-allocate here since we skip unequipped traits, but this is the maximum length
-    string[] memory parts = new string[](tokens.length*2 + 2);
-    uint equippedItems = 0;
+    string[] memory parts = new string[](equippedTraits.length*2 + 2);
 
     parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" />';
 
-    for (uint256 index = 0; index < tokens.length; index++) {
-      (string memory traitType, string memory name, bool equipped) = traitContract.getTraitDetails(tokens[index]);
+    for (uint256 index = 0; index < equippedTraits.length; index++) {
+      Trait.TraitDetails memory details = traitContract.getTraitDetails(equippedTraits[index]);
 
-      if(!equipped) { continue; }
-      equippedItems++;
+      if(!details.equipped) { continue; }
 
       uint256 y = 20 + index*20;
       uint256 offset = index*2 + 1;
 
-      parts[offset] = string(abi.encodePacked('<text x="10" y="',y.toString(),'" class="base left">',traitType,'</text>'));
-      parts[offset + 1] = string(abi.encodePacked('<text x="340" y="',y.toString(),'" class="base right">',name,'</text>'));
+      parts[offset] = string(abi.encodePacked('<text x="10" y="',y.toString(),'" class="base left">',details.traitType,'</text>'));
+      parts[offset + 1] = string(abi.encodePacked('<text x="340" y="',y.toString(),'" class="base right">',details.name,'</text>'));
     }
 
-    parts[equippedItems*2+1] = '</svg>';
+    parts[equippedTraits.length*2+1] = '</svg>';
 
     bytes memory buffer;
     for (uint256 i = 0; i < parts.length; i++) {
@@ -110,8 +99,8 @@ contract Character is ERC721Enumerable {
 // so we don't have to deploy ourselves (probably should not do that)
 interface Registry {
   function account(
-        uint256 chainId,
-        address tokenCollection,
-        uint256 tokenId
-    ) external view returns (address);
+    uint256 chainId,
+    address tokenCollection,
+    uint256 tokenId
+  ) external view returns (address);
 }

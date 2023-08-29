@@ -12,12 +12,12 @@ import "openzeppelin-contracts/token/ERC721/ERC721.sol";
 
 // 0x509f027c5E26eA6Ce1F4354aBDE668647563B7F6 -- account
 // 0x7c84F7499f964965c938c44E1560E426d81080d2 -- registry
-// 0x3D29F07aE9923A7f0F7cb94C6bC4e883d7Ecf243 -- character
-// 0xBC225050D02594af15F5a3f60B75F08f2384929c -- trait
+// 0xFC6d357A0df3a2b92752d33B5852464Cc07db9bb -- character
+// 0x58F0E67377f6686A4cb181f1FB763a91185dC30B -- trait
 
-// forge verify-contract --chain 5 --etherscan-api-key $ETHERSCAN_API_KEY --constructor-args $(cast abi-encode "constructor(address,address)" "0xBC225050D02594af15F5a3f60B75F08f2384929c" "0x7c84F7499f964965c938c44E1560E426d81080d2" 18 1000000000000000000000) 0x3D29F07aE9923A7f0F7cb94C6bC4e883d7Ecf243 src/Character.sol:Character --watch
+// forge verify-contract --chain 5 --etherscan-api-key $ETHERSCAN_API_KEY --constructor-args $(cast abi-encode "constructor(address,address)" "0x58F0E67377f6686A4cb181f1FB763a91185dC30B" "0x7c84F7499f964965c938c44E1560E426d81080d2" 18 1000000000000000000000) 0xFC6d357A0df3a2b92752d33B5852464Cc07db9bb src/Character.sol:Character --watch
 
-// forge verify-contract --chain 5 --etherscan-api-key $ETHERSCAN_API_KEY 0xBC225050D02594af15F5a3f60B75F08f2384929c src/Trait.sol:Trait --watch
+// forge verify-contract --chain 5 --etherscan-api-key $ETHERSCAN_API_KEY 0x58F0E67377f6686A4cb181f1FB763a91185dC30B src/Trait.sol:Trait --watch
 
 // forge verify-contract --chain 5 --etherscan-api-key $ETHERSCAN_API_KEY --constructor-args $(cast abi-encode "constructor(address)" "0x509f027c5E26eA6Ce1F4354aBDE668647563B7F6" 18 1000000000000000000000) 0x7c84F7499f964965c938c44E1560E426d81080d2 src/AccountRegistry.sol:SimpleERC6551AccountRegistry --watch
 

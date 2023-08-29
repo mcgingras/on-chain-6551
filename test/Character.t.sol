@@ -28,12 +28,12 @@ contract CharacterTest is Test {
       // mint a trait of token 0
       // assuming goerli (this is baked into contract rn)
       address tba = registry.account(5, address(character), 0);
-      trait.mint(tba, "WEAPON");
-      trait.equip(0);
+      trait.mint(tba);
+      trait.equip(1);
 
       // token URI should return some value
       string memory tokenURI = character.tokenURI(0);
-      console.log(tokenURI);
+      // console.log(tokenURI);
       assertNotEq(tokenURI, emptyTokenURI);
     }
 }
