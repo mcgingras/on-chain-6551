@@ -6,9 +6,6 @@ import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
 
-
-
-// todo: mark each trait as active?
 contract Trait is ERC721Enumerable {
   using Strings for uint256;
   using Counters for Counters.Counter;
@@ -114,15 +111,9 @@ contract Trait is ERC721Enumerable {
         "Shoes"
     ];
 
-
-
-    // types:
-    // weapon
-    // chest armor
-    // head armor
-    // waist armor
-    // foot armor
     mapping (uint256 => TraitDetails) public traitDetails;
+
+    constructor() ERC721("Loot2: Tokenbound Trait", "Loot2:T") {}
 
     function getTraitDetails(uint256 tokenId) external view returns (string memory traitType, string memory name, bool equipped) {
       TraitDetails memory details = traitDetails[tokenId];
@@ -133,17 +124,21 @@ contract Trait is ERC721Enumerable {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function getItemByType(uint256 tokenId, string memory traitType) {
+    function areStringsEqual(string memory str1, string memory str2) public pure returns (bool) {
+        return keccak256(abi.encodePacked(str1)) == keccak256(abi.encodePacked(str2));
+    }
+
+    function getItemByType(uint256 tokenId, string memory traitType) public view returns (string memory) {
       // maybe something like require that traitType is in the list of valid types?
-      if (traitType == "WEAPON") {
+      if (areStringsEqual(traitType, "WEAPON")) {
         return _pluck(tokenId, "WEAPON", _weapon);
-      } else if (traitType == "CHEST_ARMOR") {
+      } else if (areStringsEqual(traitType, "CHEST_ARMOR")) {
         return _pluck(tokenId, "CHEST_ARMOR", _chestArmor);
-      } else if (traitType == "HEAD_ARMOR") {
+      } else if (areStringsEqual(traitType, "HEAD_ARMOR")) {
         return _pluck(tokenId, "HEAD_ARMOR", _headArmor);
-      } else if (traitType == "WAIST_ARMOR") {
+      } else if (areStringsEqual(traitType, "WAIST_ARMOR")) {
         return _pluck(tokenId, "WAIST_ARMOR", _waistArmor);
-      } else if (traitType == "FOOT_ARMOR") {
+      } else if (areStringsEqual(traitType, "FOOT_ARMOR")) {
         return _pluck(tokenId, "FOOT_ARMOR", _footArmor);
       } else {
         return "INVALID";
@@ -169,7 +164,7 @@ contract Trait is ERC721Enumerable {
       TraitDetails memory data = traitDetails[tokenId];
 
       string[5] memory parts;
-      parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 14px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
+      parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
       parts[1] = data.traitType;
       parts[2] = '</text><text x="340" y="20" class="base right">';
       parts[3] = data.name;
@@ -184,17 +179,17 @@ contract Trait is ERC721Enumerable {
     }
 
     function tokensOfOwner(address _owner) external view returns(uint256[] memory) {
-        uint256 tokenCount = balanceOf(_owner);
+      uint256 tokenCount = balanceOf(_owner);
 
-        if (tokenCount == 0) {
-            return new uint256[](0);
-        } else {
-            uint256[] memory result = new uint256[](tokenCount);
-            for (uint256 index = 0; index < tokenCount; index++) {
-                result[index] = tokenOfOwnerByIndex(_owner, index);
-            }
-            return result;
-        }
+      if (tokenCount == 0) {
+          return new uint256[](0);
+      } else {
+          uint256[] memory result = new uint256[](tokenCount);
+          for (uint256 index = 0; index < tokenCount; index++) {
+              result[index] = tokenOfOwnerByIndex(_owner, index);
+          }
+          return result;
+      }
     }
 
     function _mint(address to, string memory traitType) internal {
@@ -217,6 +212,4 @@ contract Trait is ERC721Enumerable {
     //   // get TBA address from registry and mint to that address
     //   _mint(to, tokenId, traitType);
     // }
-
-    constructor() ERC721("Station Tokenbound Loot Demo", "STLD") {}
 }

@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "openzeppelin-contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
 
+import "./Trait.sol";
+
 // no owner protection or anything
 // purely a quick and dirty experiment
-contract Character is ERC721 {
+contract Character is ERC721Enumerable {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
@@ -23,7 +25,7 @@ contract Character is ERC721 {
     bool equipped;
   }
 
-  constructor(address _renderer, address _registry) ERC721("Loot2: Tokenbound Character", "LOOT2") {
+  constructor(address _renderer, address _registry) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
     renderer = _renderer;
     registry = _registry;
   }
@@ -44,14 +46,17 @@ contract Character is ERC721 {
 
     // pre-computed base64 encoding of "empty" SVG
     if (tokens.length == 0) {
-      return "ZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCw8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDM1MCAzNTAiPjxzdHlsZT4uYmFzZSB7IGZvbnQtZmFtaWx5OiAiSUJNIFBsZXggTW9ubyIsIG1vbm9zcGFjZTsgZm9udC1zaXplOiAxNHB4OyB0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyB9PC9zdHlsZT48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJibGFjayIgLz48dGV4dCB4PSIxMCIgeT0iMjAiIGNsYXNzPSJiYXNlIGxlZnQiPjwvdGV4dD48L3N2Zz4=";
+      return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaW5ZTWluIG1lZXQiIHZpZXdCb3g9IjAgMCAzNTAgMzUwIj48c3R5bGU+LmJhc2UgeyBmb250LWZhbWlseTogIklCTSBQbGV4IE1vbm8iLCBtb25vc3BhY2U7IGZvbnQtc2l6ZTogMTJweDsgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsgZmlsbDogI0ZGRiB9PC9zdHlsZT48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJibGFjayIgLz48dGV4dCB4PSIxMCIgeT0iMjAiIGNsYXNzPSJiYXNlIGxlZnQiPkVtcHR5PC90ZXh0Pjwvc3ZnPg==";
     }
 
-    string[] memory parts = new string[](tokens.length*4 + 1);
-    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 14px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
+    string[] memory parts;
+    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
 
     for (uint256 index = 0; index < tokens.length; index++) {
-      (string memory traitType, string memory name, bool _equipped) = traitContract.getTraitDetails(tokens[index]);
+      (string memory traitType, string memory name, bool equipped) = traitContract.getTraitDetails(tokens[index]);
+
+      if(!equipped) { continue; }
+
       uint256 offset = index*3 + 1;
       parts[offset] = traitType;
       parts[offset + 1] = '</text><text x="340" y="20" class="base right">';
@@ -62,7 +67,7 @@ contract Character is ERC721 {
       }
     }
 
-    parts[tokens.length*4] = '</text></svg>';
+    parts[parts.length] = '</text></svg>';
 
     bytes memory buffer;
     for (uint256 i = 0; i < parts.length; i++) {
@@ -76,17 +81,26 @@ contract Character is ERC721 {
     return output;
   }
 
+  function tokensOfOwner(address _owner) external view returns(uint256[] memory) {
+    uint256 tokenCount = balanceOf(_owner);
+
+    if (tokenCount == 0) {
+        return new uint256[](0);
+    } else {
+        uint256[] memory result = new uint256[](tokenCount);
+        for (uint256 index = 0; index < tokenCount; index++) {
+            result[index] = tokenOfOwnerByIndex(_owner, index);
+        }
+        return result;
+    }
+  }
+
   function mint() public {
     _safeMint(_msgSender(), _tokenCount.current());
     _tokenCount.increment();
   }
 }
 
-interface Trait {
-  function getTraitDetails(uint256 tokenId) external view returns (string memory traitType, string memory name, bool equipped);
-  function balanceOf(address _owner) external view returns (uint256);
-  function tokensOfOwner(address _owner) external view returns (uint256[] memory);
-}
 
 // todo -- does erc6551 have a suggested and deployed registry + account impl
 // so we don't have to deploy ourselves (probably should not do that)

@@ -29,3 +29,15 @@ These NFTs must exist in the TBA of a given base NFT to show up on the base NFT.
 - [Base](https://testnets.opensea.io/assets/goerli/0x746950c4cd575d641afd10cbd675b8e327ab9a3c/0)
 - [TBA holding Subs for Base](https://testnets.opensea.io/0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63)
 - [Loom walkthrough](https://www.loom.com/share/5616f2613a2f4d48995b35b134b3eb13)
+
+### Helpful Forge Hints
+
+forge verify-contract \
+ --chain-id 11155111 \
+ --num-of-optimizations 1000000 \
+ --watch \
+ --constructor-args $(cast abi-encode "constructor(address,address)" "0x54fB0f42A415D6238aB3B96600eB3E269eAF823b" "0x7c84F7499f964965c938c44E1560E426d81080d2" 18 1000000000000000000000) \
+ --etherscan-api-key <your_etherscan_api_key> \
+ --compiler-version v0.8.10+commit.fc410830 \
+ <the_contract_address> \
+ src/MyToken.sol:MyToken
