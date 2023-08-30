@@ -190,7 +190,7 @@ contract Trait is ERC721Enumerable {
     TraitDetails memory data = traitDetails[tokenId];
 
     string[5] memory parts;
-    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
+    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", ui-monospace; font-size: 10px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
     parts[1] = data.traitType;
     parts[2] = '</text><text x="340" y="20" class="base right">';
     parts[3] = data.name;

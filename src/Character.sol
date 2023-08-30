@@ -46,7 +46,7 @@ contract Character is ERC721Enumerable {
 
     string[] memory parts = new string[](equippedTraits.length*2 + 2);
 
-    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" />';
+    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", ui-monospace; font-size: 10px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" />';
 
     for (uint256 index = 0; index < equippedTraits.length; index++) {
       Trait.TraitDetails memory details = traitContract.getTraitDetails(equippedTraits[index]);
