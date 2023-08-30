@@ -28,9 +28,9 @@ contract Deploy is Script {
         // use existing registry
         SimpleERC6551AccountRegistry registry = SimpleERC6551AccountRegistry(0x7c84F7499f964965c938c44E1560E426d81080d2);
         // deploy new trait contract
-        Trait trait = new Trait();
+        // Trait trait = new Trait();
         // deploy new character contract using trait as renderer and registry as registry
-        new Character(address(trait), address(registry));
+        new Character(address(0x58F0E67377f6686A4cb181f1FB763a91185dC30B), address(registry));
         vm.stopBroadcast();
     }
 }

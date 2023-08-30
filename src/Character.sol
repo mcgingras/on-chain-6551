@@ -14,7 +14,7 @@ contract Character is ERC721Enumerable {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
-  Counters.Counter private _tokenCount;
+  Counters.Counter private _tokenCount = Counters.Counter(1);
   address public renderer;
   address public registry;
 
