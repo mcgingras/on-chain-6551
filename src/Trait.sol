@@ -186,17 +186,17 @@ contract Trait is ERC721Enumerable {
     equippedItems[ownerOf(tokenId)][typeOfTrait] = 0;
   }
 
+  // cant encode the font in this file because it makes the contract too big :(
   function tokenURI(uint256 tokenId) override public view returns (string memory) {
     TraitDetails memory data = traitDetails[tokenId];
 
-    string[5] memory parts;
+    string[4] memory parts;
     parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", ui-monospace; font-size: 10px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
-    parts[1] = data.traitType;
-    parts[2] = '</text><text x="340" y="20" class="base right">';
-    parts[3] = data.name;
-    parts[4] = '</text></svg>';
+    parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base left">',data.traitType,'</text>'));
+    parts[2] = string(abi.encodePacked('<text x="340" y="20" class="base left">',data.name,'</text>'));
+    parts[3] = '</svg>';
 
-    string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2]));
+    string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
 
     string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Token Bound Item #', tokenId.toString(), '", "description": "On-chain token bound loot item. Send this to a token bound account for it to dynamically appear on the base NFT.", "attributes": [{"trait_type": "Trait type", "value": "', data.traitType, '"}], "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
     output = string(abi.encodePacked('data:application/json;base64,', json));
