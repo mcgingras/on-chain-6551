@@ -16,8 +16,8 @@ contract CharacterTest is Test {
     function setUp() public {
       SimpleERC6551Account account = new SimpleERC6551Account();
       registry = new SimpleERC6551AccountRegistry(address(account));
-      trait = new Trait();
-      character = new Character(address(trait), address(registry));
+      trait = new Trait(address(0), address(0));
+      character = new Character(address(trait), address(registry), address(0));
     }
 
     function testTokenURI() public {

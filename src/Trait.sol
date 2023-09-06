@@ -5,126 +5,26 @@ import "openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/utils/Strings.sol";
 import "openzeppelin-contracts/utils/Base64.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
+import "openzeppelin-contracts/access/Ownable.sol";
 
-contract Trait is ERC721Enumerable {
+import "./TraitStorage.sol";
+import "./SVGStorage.sol";
+import "./TraitDetailsStruct.sol";
+
+contract Trait is ERC721Enumerable, Ownable {
   using Strings for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenCount = Counters.Counter(1);
-
-
-  struct TraitDetails {
-    string traitType;
-    string name;
-    bool equipped;
-  }
-
-  string[] private _traitTypes = [
-    "Weapon",
-    "Chest Armor",
-    "Head Armor",
-    "Waist Armor",
-    "Foot Armor"
-  ];
-
-  // can obviously change these if we want to so its not ripping off loot
-  string[] private _weapon = [
-    "Warhammer",
-    "Quarterstaff",
-    "Maul",
-    "Mace",
-    "Club",
-    "Katana",
-    "Falchion",
-    "Scimitar",
-    "Long Sword",
-    "Short Sword",
-    "Ghost Wand",
-    "Grave Wand",
-    "Bone Wand",
-    "Wand",
-    "Grimoire",
-    "Chronicle",
-    "Tome",
-    "Book"
-  ];
-
-  string[] private _chestArmor = [
-    "Divine Robe",
-    "Silk Robe",
-    "Linen Robe",
-    "Robe",
-    "Shirt",
-    "Demon Husk",
-    "Dragonskin Armor",
-    "Studded Leather Armor",
-    "Hard Leather Armor",
-    "Leather Armor",
-    "Holy Chestplate",
-    "Ornate Chestplate",
-    "Plate Mail",
-    "Chain Mail",
-    "Ring Mail"
-  ];
-
-  string[] private _headArmor = [
-    "Ancient Helm",
-    "Ornate Helm",
-    "Great Helm",
-    "Full Helm",
-    "Helm",
-    "Demon Crown",
-    "Dragon's Crown",
-    "War Cap",
-    "Leather Cap",
-    "Cap",
-    "Crown",
-    "Divine Hood",
-    "Silk Hood",
-    "Linen Hood",
-    "Hood"
-  ];
-
-  string[] private _waistArmor = [
-    "Ornate Belt",
-    "War Belt",
-    "Plated Belt",
-    "Mesh Belt",
-    "Heavy Belt",
-    "Demonhide Belt",
-    "Dragonskin Belt",
-    "Studded Leather Belt",
-    "Hard Leather Belt",
-    "Leather Belt",
-    "Brightsilk Sash",
-    "Silk Sash",
-    "Wool Sash",
-    "Linen Sash",
-    "Sash"
-  ];
-
-  string[] private _footArmor = [
-    "Holy Greaves",
-    "Ornate Greaves",
-    "Greaves",
-    "Chain Boots",
-    "Heavy Boots",
-    "Demonhide Boots",
-    "Dragonskin Boots",
-    "Studded Leather Boots",
-    "Hard Leather Boots",
-    "Leather Boots",
-    "Divine Slippers",
-    "Silk Slippers",
-    "Wool Shoes",
-    "Linen Shoes",
-    "Shoes"
-  ];
+  TraitStorage public traitStorage;
+  SVGStorage public svgStorage;
 
   mapping (uint256 => TraitDetails) public traitDetails;
   mapping(address => mapping(string => uint256)) public equippedItems;
 
-
-  constructor() ERC721("Loot2: Tokenbound Trait", "Loot2:T") {}
+  constructor(address _traitStorage, address _svgStorage) ERC721("Loot2: Tokenbound Trait", "Loot2:T") {
+    traitStorage = TraitStorage(_traitStorage);
+    svgStorage = SVGStorage(_svgStorage);
+  }
 
   function getTraitDetails(uint256 tokenId) external view returns (TraitDetails memory) {
     return traitDetails[tokenId];
@@ -139,18 +39,18 @@ contract Trait is ERC721Enumerable {
   }
 
   function getItem(uint256 tokenId) public view returns (string memory) {
-    string memory traitType = _pluck(tokenId, "TYPE", _traitTypes);
+    string memory traitType = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
 
     if (areStringsEqual(traitType, "Weapon")) {
-      return _pluck(tokenId, "Weapon", _weapon);
+      return _pluck(tokenId, "Weapon", traitStorage.getWeapon());
     } else if (areStringsEqual(traitType, "Chest Armor")) {
-      return _pluck(tokenId, "Chest Armor", _chestArmor);
+      return _pluck(tokenId, "Chest Armor", traitStorage.getChestArmor());
     } else if (areStringsEqual(traitType, "Head Armor")) {
-      return _pluck(tokenId, "Head Armor", _headArmor);
+      return _pluck(tokenId, "Head Armor", traitStorage.getHeadArmor());
     } else if (areStringsEqual(traitType, "Waist Armor")) {
-      return _pluck(tokenId, "Waist Armor", _waistArmor);
+      return _pluck(tokenId, "Waist Armor", traitStorage.getWaistArmor());
     } else if (areStringsEqual(traitType, "Foot Armor")) {
-      return _pluck(tokenId, "Foot Armor", _footArmor);
+      return _pluck(tokenId, "Foot Armor", traitStorage.getFootArmor());
     } else {
       return "INVALID";
     }
@@ -165,7 +65,7 @@ contract Trait is ERC721Enumerable {
   function equip(uint256 tokenId) public {
     // handling TBA case... require that msg.sender is owner of TBA || ownerOf?
     // require(ownerOf(tokenId) == msg.sender, "You don't own this token");
-    string memory typeToEquip = _pluck(tokenId, "TYPE", _traitTypes);
+    string memory typeToEquip = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     require(equippedItems[ownerOf(tokenId)][typeToEquip] == 0, "An item of this type is already equipped.");
 
     // set to equipped
@@ -178,7 +78,7 @@ contract Trait is ERC721Enumerable {
   /// could use `mapping (uint256 => bool) isEquipped;` but as a solidity noob I'm not sure if it's costly to do so?
   function unequip(uint256 tokenId) public {
     // require(ownerOf(tokenId) == msg.sender, "You don't own this token");
-    string memory typeOfTrait = _pluck(tokenId, "TYPE", _traitTypes);
+    string memory typeOfTrait = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     require(equippedItems[ownerOf(tokenId)][typeOfTrait] != 0, "Item is not equipped.");
 
     // Set to unequipped
@@ -191,10 +91,10 @@ contract Trait is ERC721Enumerable {
     TraitDetails memory data = traitDetails[tokenId];
 
     string[4] memory parts;
-    parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { font-family: "IBM Plex Mono", ui-monospace; font-size: 10px; text-transform: uppercase; } .left { fill: #ffffff70; } .right { fill: #fff; text-anchor: end; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base left">';
+    parts[0] = svgStorage.OPEN_TAG();
     parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base left">',data.traitType,'</text>'));
-    parts[2] = string(abi.encodePacked('<text x="340" y="20" class="base left">',data.name,'</text>'));
-    parts[3] = '</svg>';
+    parts[2] = string(abi.encodePacked('<text x="340" y="20" class="base right">',data.name,'</text>'));
+    parts[3] = svgStorage.CLOSE_TAG();
 
     string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
 
@@ -222,8 +122,8 @@ contract Trait is ERC721Enumerable {
     uint256 count = 0;
 
     // Count number of equipped items for pre-allocation of array size
-    for (uint i = 0; i < _traitTypes.length; i++) {
-      if (equippedItems[_owner][_traitTypes[i]] != 0) {
+    for (uint i = 0; i < traitStorage.getTraitTypes().length; i++) {
+      if (equippedItems[_owner][traitStorage.getTraitTypes()[i]] != 0) {
         count++;
       }
     }
@@ -233,8 +133,8 @@ contract Trait is ERC721Enumerable {
 
     // Populate the array with IDs of equipped items
     uint256 index = 0;
-    for (uint i = 0; i < _traitTypes.length; i++) {
-      uint256 tokenId = equippedItems[_owner][_traitTypes[i]];
+    for (uint i = 0; i < traitStorage.getTraitTypes().length; i++) {
+      uint256 tokenId = equippedItems[_owner][traitStorage.getTraitTypes()[i]];
       if (tokenId != 0) {
         equippedItemIDs[index] = tokenId;
         index++;
@@ -246,7 +146,7 @@ contract Trait is ERC721Enumerable {
 
   function _mint(address to) internal {
     uint256 tokenId = _tokenCount.current();
-    string memory traitType = _pluck(tokenId, "TYPE", _traitTypes);
+    string memory traitType = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     traitDetails[tokenId] = TraitDetails(traitType, getItem(tokenId), false);
     _safeMint(to, tokenId);
     _tokenCount.increment();
@@ -262,9 +162,4 @@ contract Trait is ERC721Enumerable {
 
   // beforeTransfer hook
   // trait should be unequipped before (or after?) transfer
-
-  // function tbaMint(address to, uint256 tokenId, string memory traitType) public {
-  //   // get TBA address from registry and mint to that address
-  //   _mint(to, tokenId, traitType);
-  // }
 }
