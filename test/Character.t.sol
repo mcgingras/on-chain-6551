@@ -1,23 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test} from "forge-std/Test.sol";
-import {console} from "forge-std/console.sol";
-import {Character} from "../src/Character.sol";
-import {Trait} from "../src/Trait.sol";
-import {SimpleERC6551AccountRegistry} from "../src/AccountRegistry.sol";
-import {SimpleERC6551Account} from "../src/Account.sol";
+import { Test } from "forge-std/Test.sol";
+import { console } from "forge-std/console.sol";
+import { Character } from "../src/Character.sol";
+import { Trait } from "../src/Trait.sol";
+import { SimpleERC6551AccountRegistry } from "../src/AccountRegistry.sol";
+import { SimpleERC6551Account } from "../src/Account.sol";
+import { TraitStorage } from "../src/TraitStorage.sol";
+import { SVGStorage } from "../src/SVGStorage.sol";
 
 contract CharacterTest is Test {
     Character public character;
     Trait public trait;
+    TraitStorage public traitStorage;
+    SVGStorage public svgStorage;
     SimpleERC6551AccountRegistry public registry;
 
     function setUp() public {
       SimpleERC6551Account account = new SimpleERC6551Account();
+      svgStorage = new SVGStorage();
+      traitStorage = new TraitStorage();
       registry = new SimpleERC6551AccountRegistry(address(account));
-      trait = new Trait(address(0), address(0));
-      character = new Character(address(trait), address(registry), address(0));
+      trait = new Trait(address(traitStorage), address(svgStorage));
+      character = new Character(address(trait), address(registry), address(svgStorage));
     }
 
     function testTokenURI() public {

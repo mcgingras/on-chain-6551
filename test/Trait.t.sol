@@ -1,17 +1,26 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test} from "forge-std/Test.sol";
-import {console} from "forge-std/console.sol";
-import {Trait} from "../src/Trait.sol";
-import {TraitDetails} from "../src/TraitDetailsStruct.sol";
+import { Test } from "forge-std/Test.sol";
+import { console } from "forge-std/console.sol";
+import { Character } from "../src/Character.sol";
+import { Trait } from "../src/Trait.sol";
+import { TraitDetails } from "../src/TraitDetailsStruct.sol";
+import { SimpleERC6551AccountRegistry } from "../src/AccountRegistry.sol";
+import { SimpleERC6551Account } from "../src/Account.sol";
+import { TraitStorage } from "../src/TraitStorage.sol";
+import { SVGStorage } from "../src/SVGStorage.sol";
 
 contract TraitTest is Test {
     Trait public trait;
+    TraitStorage public traitStorage;
+    SVGStorage public svgStorage;
     address owner = address(123);
 
     function setUp() public {
-      trait = new Trait(address(123), address(123));
+      svgStorage = new SVGStorage();
+      traitStorage = new TraitStorage();
+      trait = new Trait(address(traitStorage), address(svgStorage));
     }
 
     function testMint() public {
