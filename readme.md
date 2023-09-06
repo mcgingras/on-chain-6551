@@ -8,14 +8,22 @@ This repo is an attempt at doing just that. It takes inspiration from [Loot](htt
 
 ### Glossary
 
-#### Base.sol
+#### Character.sol
 
 The base NFT contract. This is the primary NFT that renders it's children. It is originally blank, but as sub NFTs are sent to the TBA for the base NFT, each sub NFT renders on the base NFT. Since this is inspired by Loot, we can image the base NFT as an empty character, and the sub NFTs are traits that the character collects. As the character collects the traits, they render on the character (in the form of white text on a black background)
 
-#### Sub.sol
+#### Trait.sol
 
 The sub NFT contract. Following the Loot example, these are the traits that render on the base NFT. These NFTs have their own image property so they render on their own.
 These NFTs must exist in the TBA of a given base NFT to show up on the base NFT.
+
+#### TraitStorage.sol
+
+Storage for the trait details.
+
+#### SVGStorage.sol
+
+Storage for SVG details.
 
 ### Notes
 
