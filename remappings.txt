@@ -3,3 +3,5 @@ forge-std/=lib/forge-std/src/
 openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 sstore2/=lib/sstore2/contracts/
 test/=test/
+tokenbound-account/=lib/contracts/src
+tokenbound-registry/=lib/reference/src

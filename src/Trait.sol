@@ -7,7 +7,6 @@ import "openzeppelin-contracts/utils/Base64.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
-import "./AccountRegistry.sol";
 import "./TraitStorage.sol";
 import "./SVGStorage.sol";
 import "./TraitDetailsStruct.sol";

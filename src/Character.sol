@@ -19,19 +19,20 @@ contract Character is ERC721Enumerable, Ownable {
   Counters.Counter private _tokenCount = Counters.Counter(1);
   address public renderer;
   address public registry;
+  address public implementation;
   SVGStorage public svgStorage;
 
-  constructor(address _renderer, address _registry, address _svgStorage) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
+  constructor(address _renderer, address _registry, address _implementation, address _svgStorage) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
     renderer = _renderer;
     registry = _registry;
+    implementation = _implementation;
     svgStorage = SVGStorage(_svgStorage);
   }
 
   function tokenURI(uint256 tokenId) override public view returns (string memory) {
     Trait traitContract = Trait(renderer);
     Registry registryContract = Registry(registry);
-    // todo: remove chainId hardcoding
-    address tba = registryContract.account(5, address(this), tokenId);
+    address tba = registryContract.account(implementation, block.chainid, address(this), tokenId, 123);
     uint256[] memory equippedTraits = traitContract.equippedTraitsOfOwner(tba);
 
     // pre-computed base64 encoding of "empty" SVG
@@ -99,8 +100,10 @@ contract Character is ERC721Enumerable, Ownable {
 
 interface Registry {
   function account(
+    address implementation,
     uint256 chainId,
     address tokenCollection,
-    uint256 tokenId
+    uint256 tokenId,
+    uint256 salt
   ) external view returns (address);
 }

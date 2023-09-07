@@ -6,17 +6,17 @@ import { console } from "forge-std/console.sol";
 import { Character } from "../src/Character.sol";
 import { Trait } from "../src/Trait.sol";
 import { TraitDetails } from "../src/TraitDetailsStruct.sol";
-import { SimpleERC6551AccountRegistry } from "../src/AccountRegistry.sol";
-import { SimpleERC6551Account } from "../src/Account.sol";
 import { TraitStorage } from "../src/TraitStorage.sol";
 import { SVGStorage } from "../src/SVGStorage.sol";
+import {Account as TBA} from "../lib/contracts/src/Account.sol";
+import { ERC6551Registry } from "../lib/reference/src/ERC6551Registry.sol";
 
 contract TraitTest is Test {
     Trait public trait;
     TraitStorage public traitStorage;
     SVGStorage public svgStorage;
-    SimpleERC6551Account public account;
-    SimpleERC6551AccountRegistry public registry;
+    TBA public account;
+    ERC6551Registry public registry;
 
     address _owner = address(123);
     address _recipient = address(456);
@@ -26,8 +26,8 @@ contract TraitTest is Test {
     function setUp() public {
       svgStorage = new SVGStorage();
       traitStorage = new TraitStorage();
-      account = new SimpleERC6551Account();
-      registry = new SimpleERC6551AccountRegistry(address(account));
+      account = new TBA(address(2), address(3));
+      registry = new ERC6551Registry();
       trait = new Trait(address(traitStorage), address(svgStorage));
     }
 
