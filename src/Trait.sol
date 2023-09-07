@@ -7,6 +7,7 @@ import "openzeppelin-contracts/utils/Base64.sol";
 import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
+import "./AccountRegistry.sol";
 import "./TraitStorage.sol";
 import "./SVGStorage.sol";
 import "./TraitDetailsStruct.sol";
@@ -63,30 +64,24 @@ contract Trait is ERC721Enumerable, Ownable {
   }
 
   function equip(uint256 tokenId) public {
-    // handling TBA case... require that msg.sender is owner of TBA || ownerOf?
-    // require(ownerOf(tokenId) == msg.sender, "You don't own this token");
+    require(ownerOf(tokenId) == msg.sender, "You don't own this token");
     string memory typeToEquip = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     require(equippedItems[ownerOf(tokenId)][typeToEquip] == 0, "An item of this type is already equipped.");
 
-    // set to equipped
     traitDetails[tokenId].equipped = true;
     equippedItems[ownerOf(tokenId)][typeToEquip] = tokenId;
   }
 
-  /// @dev feels dangerous to use 0 as a special case here.
-  /// I am starting count at 1 to get around this issue, but it feels like a hack?
-  /// could use `mapping (uint256 => bool) isEquipped;` but as a solidity noob I'm not sure if it's costly to do so?
+
   function unequip(uint256 tokenId) public {
-    // require(ownerOf(tokenId) == msg.sender, "You don't own this token");
+    require(ownerOf(tokenId) == msg.sender, "You don't own this token");
     string memory typeOfTrait = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     require(equippedItems[ownerOf(tokenId)][typeOfTrait] != 0, "Item is not equipped.");
 
-    // Set to unequipped
     traitDetails[tokenId].equipped = false;
     equippedItems[ownerOf(tokenId)][typeOfTrait] = 0;
   }
 
-  // cant encode the font in this file because it makes the contract too big :(
   function tokenURI(uint256 tokenId) override public view returns (string memory) {
     TraitDetails memory data = traitDetails[tokenId];
 
@@ -144,20 +139,20 @@ contract Trait is ERC721Enumerable, Ownable {
     return equippedItemIDs;
   }
 
-  function _mint(address to) internal {
+  function __mint(address to) internal {
     uint256 tokenId = _tokenCount.current();
     string memory traitType = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     traitDetails[tokenId] = TraitDetails(traitType, getItem(tokenId), false);
-    _safeMint(to, tokenId);
+    _mint(to, tokenId);
     _tokenCount.increment();
   }
 
   function mint() public {
-    _mint(msg.sender);
+    __mint(msg.sender);
   }
 
   function mint(address to) public {
-    _mint(to);
+    __mint(to);
   }
 
   function _beforeTokenTransfer(
@@ -169,7 +164,6 @@ contract Trait is ERC721Enumerable, Ownable {
     // Need to call parent transfer hook
     super._beforeTokenTransfer(from, to, tokenId, batchSize);
 
-    // If the trait is equipped, unequip it
     if (traitDetails[tokenId].equipped) {
         string memory typeOfTrait = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
         traitDetails[tokenId].equipped = false;

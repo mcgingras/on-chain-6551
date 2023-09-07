@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import { console } from "forge-std/console.sol";
+
 import "openzeppelin-contracts/utils/introspection/IERC165.sol";
 import "openzeppelin-contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/interfaces/IERC1271.sol";
@@ -20,13 +22,18 @@ contract SimpleERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Exe
         bytes calldata data,
         uint256 operation
     ) external payable returns (bytes memory result) {
+        console.log("maybe we in here");
+        console.log(msg.sender);
         require(_isValidSigner(msg.sender), "Invalid signer");
+
         require(operation == 0, "Only call operations are supported");
 
         ++state;
 
         bool success;
         (success, result) = to.call{value: value}(data);
+
+        console.log(success);
 
         if (!success) {
             assembly {
@@ -72,23 +79,26 @@ contract SimpleERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Exe
             uint256
         )
     {
-        bytes memory footer = new bytes(0x60);
+      bytes memory footer = new bytes(0x60);
 
-        assembly {
-            extcodecopy(address(), add(footer, 0x20), 0x4d, 0x60)
-        }
+      assembly {
+          extcodecopy(address(), add(footer, 0x20), 0x4d, 0x60)
+      }
 
-        return abi.decode(footer, (uint256, address, uint256));
+      return abi.decode(footer, (uint256, address, uint256));
     }
 
     function owner() public view returns (address) {
-        (uint256 chainId, address tokenContract, uint256 tokenId) = token();
-        if (chainId != block.chainid) return address(0);
+      (uint256 chainId, address tokenContract, uint256 tokenId) = token();
+      console.log("getting owner");
+      console.log(tokenContract);
+      if (chainId != block.chainid) return address(0);
 
-        return IERC721(tokenContract).ownerOf(tokenId);
+      return IERC721(tokenContract).ownerOf(tokenId);
     }
 
     function _isValidSigner(address signer) internal view returns (bool) {
-        return signer == owner();
+      console.log("checking for valid signer");
+      return signer == owner();
     }
 }

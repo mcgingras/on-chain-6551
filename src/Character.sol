@@ -83,9 +83,17 @@ contract Character is ERC721Enumerable, Ownable {
     }
   }
 
-  function mint() public {
-    _safeMint(_msgSender(), _tokenCount.current());
+  function _mint(address to) internal {
+     _safeMint(to, _tokenCount.current());
     _tokenCount.increment();
+  }
+
+  function mint() public {
+    _mint(msg.sender);
+  }
+
+  function mint(address to) public {
+    _mint(to);
   }
 }
 
