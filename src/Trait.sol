@@ -160,6 +160,20 @@ contract Trait is ERC721Enumerable, Ownable {
     _mint(to);
   }
 
-  // beforeTransfer hook
-  // trait should be unequipped before (or after?) transfer
+  function _beforeTokenTransfer(
+    address from,
+    address to,
+    uint256 tokenId,
+    uint256 batchSize
+  ) internal override {
+    // Need to call parent transfer hook
+    super._beforeTokenTransfer(from, to, tokenId, batchSize);
+
+    // If the trait is equipped, unequip it
+    if (traitDetails[tokenId].equipped) {
+        string memory typeOfTrait = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
+        traitDetails[tokenId].equipped = false;
+        equippedItems[ownerOf(tokenId)][typeOfTrait] = 0;
+    }
+  }
 }
