@@ -8,6 +8,8 @@ import { Trait } from "../src/Trait.sol";
 import { TraitStorage } from "../src/TraitStorage.sol";
 import { SVGStorage } from "../src/SVGStorage.sol";
 import {Account as TBA} from "../lib/contracts/src/Account.sol";
+import { AccountGuardian } from "../lib/contracts/src/AccountGuardian.sol";
+import { EntryPoint } from "../lib/contracts/lib/account-abstraction/contracts/core/EntryPoint.sol";
 import { ERC6551Registry } from "../lib/reference/src/ERC6551Registry.sol";
 
 contract CharacterTest is Test {
@@ -19,33 +21,36 @@ contract CharacterTest is Test {
     TBA public account;
 
     address _owner = address(123);
-    address _character1TBA;
+    address payable _character1TBA;
 
     function setUp() public {
-      account = new TBA(address(2), address(3));
+      vm.startPrank(_owner);
+      account = new TBA(address(new AccountGuardian()), address(new EntryPoint()));
       svgStorage = new SVGStorage();
       traitStorage = new TraitStorage();
       registry = new ERC6551Registry();
       trait = new Trait(address(traitStorage), address(svgStorage));
       character = new Character(address(trait), address(registry), address(account), address(svgStorage));
       character.mint(_owner);
-      _character1TBA = registry.createAccount(address(account), block.chainid, address(character), 1, 123, "");
+      _character1TBA = payable(registry.createAccount(address(account), block.chainid, address(character), 1, 123, ""));
+      vm.stopPrank();
     }
 
     function testTokenURI() public {
       vm.startPrank(_owner);
       // token URI should return the empty case when no traits are minted towards it
-      string memory emptyTokenURI = character.tokenURI(0);
+      string memory emptyTokenURI = character.tokenURI(1);
       assertEq(emptyTokenURI, svgStorage.EMPTY());
 
-      // mint a trait of token 1
+      // mint a trait to the TBA of character with id 1 (owned by owner)
       trait.mint(_character1TBA);
 
       bytes4 functionSelector = bytes4(keccak256(bytes("equip(uint256)")));
       bytes memory data = abi.encodeWithSelector(functionSelector, 1);
-      account.executeCall(address(trait), 0, data);
 
-      string memory tokenURI = character.tokenURI(0);
+      TBA(_character1TBA).executeCall(address(trait), 0, data);
+//
+      string memory tokenURI = character.tokenURI(1);
       assertNotEq(tokenURI, emptyTokenURI);
       vm.stopPrank();
     }

@@ -8,15 +8,11 @@ import { Trait } from "../src/Trait.sol";
 import { TraitDetails } from "../src/TraitDetailsStruct.sol";
 import { TraitStorage } from "../src/TraitStorage.sol";
 import { SVGStorage } from "../src/SVGStorage.sol";
-import {Account as TBA} from "../lib/contracts/src/Account.sol";
-import { ERC6551Registry } from "../lib/reference/src/ERC6551Registry.sol";
 
 contract TraitTest is Test {
     Trait public trait;
     TraitStorage public traitStorage;
     SVGStorage public svgStorage;
-    TBA public account;
-    ERC6551Registry public registry;
 
     address _owner = address(123);
     address _recipient = address(456);
@@ -26,23 +22,19 @@ contract TraitTest is Test {
     function setUp() public {
       svgStorage = new SVGStorage();
       traitStorage = new TraitStorage();
-      account = new TBA(address(2), address(3));
-      registry = new ERC6551Registry();
       trait = new Trait(address(traitStorage), address(svgStorage));
     }
 
     function testMint() public {
       vm.startPrank(_owner);
-      trait.mint(msg.sender);
+      trait.mint(_owner);
+      assertEq(trait.balanceOf(_owner), 1);
       vm.stopPrank();
-
-      assertEq(trait.balanceOf(msg.sender), 1);
     }
 
     function testEquip() public {
       vm.startPrank(_owner);
-      trait.mint(msg.sender);
-      vm.stopPrank();
+      trait.mint(_owner);
 
       // trait starts as unequipped
       TraitDetails memory preEquipDetails = trait.getTraitDetails(1);
@@ -55,34 +47,36 @@ contract TraitTest is Test {
       trait.unequip(1);
       TraitDetails memory postUnequipDetails = trait.getTraitDetails(1);
       assertEq(postUnequipDetails.equipped, false);
+
+      vm.stopPrank();
     }
 
     function testTokenURI() public {
       vm.startPrank(_owner);
-      trait.mint(msg.sender);
-      vm.stopPrank();
+      trait.mint(_owner);
 
       string memory tokenURI = trait.tokenURI(1);
       assertNotEq(tokenURI, "");
+      vm.stopPrank();
     }
 
     function testTraitsOfOwner() public {
       vm.startPrank(_owner);
-      trait.mint(msg.sender);
-      vm.stopPrank();
+      trait.mint(_owner);
 
-      uint256[] memory traits = trait.traitsOfOwner(msg.sender);
+
+      uint256[] memory traits = trait.traitsOfOwner(_owner);
       assertEq(traits.length, 1);
+      vm.stopPrank();
     }
 
     function testEquippedTraitsOfOwner() public {
       vm.startPrank(_owner);
-      trait.mint(msg.sender);
-      vm.stopPrank();
-
+      trait.mint(_owner);
       trait.equip(1);
-      uint256[] memory equippedTraits = trait.equippedTraitsOfOwner(msg.sender);
+      uint256[] memory equippedTraits = trait.equippedTraitsOfOwner(_owner);
       assertEq(equippedTraits.length, 1);
+      vm.stopPrank();
     }
 
     function testUnequipAfterTransfer() public {
@@ -97,9 +91,5 @@ contract TraitTest is Test {
       bool equipped = trait.getTraitDetails(1).equipped;
       assertEq(equipped, false);
       vm.stopPrank();
-
-      // bytes4 functionSelector = bytes4(keccak256(bytes("safeTransferFrom(address,address,uint256)")));
-      // bytes memory data = abi.encodeWithSelector(functionSelector, _owner, _recipient, 1);
-      // bool success = mySimpleERC6551AccountContract.execute(trait, 0, data, 0);
     }
 }
