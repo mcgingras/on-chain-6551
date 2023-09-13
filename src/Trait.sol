@@ -139,7 +139,7 @@ contract Trait is ERC721Enumerable, Ownable {
     return equippedItemIDs;
   }
 
-  function __mint(address to) internal {
+  function _mint(address to) internal {
     uint256 tokenId = _tokenCount.current();
     string memory traitType = _pluck(tokenId, "TYPE", traitStorage.getTraitTypes());
     traitDetails[tokenId] = TraitDetails(traitType, getItem(tokenId), false);
@@ -148,11 +148,11 @@ contract Trait is ERC721Enumerable, Ownable {
   }
 
   function mint() public {
-    __mint(msg.sender);
+    _mint(msg.sender);
   }
 
   function mint(address to) public {
-    __mint(to);
+    _mint(to);
   }
 
   function _beforeTokenTransfer(

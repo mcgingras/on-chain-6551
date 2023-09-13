@@ -32,10 +32,9 @@ contract Character is ERC721Enumerable, Ownable {
   function tokenURI(uint256 tokenId) override public view returns (string memory) {
     Trait traitContract = Trait(renderer);
     Registry registryContract = Registry(registry);
-    address tba = registryContract.account(implementation, block.chainid, address(this), tokenId, 123);
+    address tba = registryContract.account(block.chainid, address(this), tokenId);
     uint256[] memory equippedTraits = traitContract.equippedTraitsOfOwner(tba);
 
-    // pre-computed base64 encoding of "empty" SVG
     if (equippedTraits.length == 0) {
       return svgStorage.EMPTY();
     }
@@ -100,10 +99,8 @@ contract Character is ERC721Enumerable, Ownable {
 
 interface Registry {
   function account(
-    address implementation,
     uint256 chainId,
     address tokenCollection,
-    uint256 tokenId,
-    uint256 salt
+    uint256 tokenId
   ) external view returns (address);
 }

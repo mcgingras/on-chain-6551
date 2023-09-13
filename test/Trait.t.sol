@@ -16,8 +16,6 @@ contract TraitTest is Test {
 
     address _owner = address(123);
     address _recipient = address(456);
-    address _ownerTBA;
-    address _recipientTBA;
 
     function setUp() public {
       svgStorage = new SVGStorage();

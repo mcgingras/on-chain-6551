@@ -88,6 +88,9 @@ contract SimpleERC6551AccountRegistry is IRegistry {
         address tokenCollection,
         uint256 tokenId
     ) internal returns (address) {
+      console.log(chainId);
+      console.log(tokenCollection);
+      console.log(tokenId);
         bytes memory encodedTokenData = abi.encode(
             chainId,
             tokenCollection,

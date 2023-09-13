@@ -7,32 +7,30 @@ import { Character } from "../src/Character.sol";
 import { Trait } from "../src/Trait.sol";
 import { TraitStorage } from "../src/TraitStorage.sol";
 import { SVGStorage } from "../src/SVGStorage.sol";
-import {Account as TBA} from "../lib/contracts/src/Account.sol";
-import { AccountGuardian } from "../lib/contracts/src/AccountGuardian.sol";
-import { EntryPoint } from "../lib/contracts/lib/account-abstraction/contracts/core/EntryPoint.sol";
-import { ERC6551Registry } from "../lib/reference/src/ERC6551Registry.sol";
+import { SimpleERC6551Account as TBA } from "../src/Account.sol";
+import { SimpleERC6551AccountRegistry } from "../src/Registry.sol";
 
 contract CharacterTest is Test {
     Character public character;
     Trait public trait;
     TraitStorage public traitStorage;
     SVGStorage public svgStorage;
-    ERC6551Registry public registry;
+    SimpleERC6551AccountRegistry public registry;
     TBA public account;
+    TBA public character1TBA;
 
     address _owner = address(123);
-    address payable _character1TBA;
 
     function setUp() public {
       vm.startPrank(_owner);
-      account = new TBA(address(new AccountGuardian()), address(new EntryPoint()));
+      account = new TBA();
       svgStorage = new SVGStorage();
       traitStorage = new TraitStorage();
-      registry = new ERC6551Registry();
+      registry = new SimpleERC6551AccountRegistry(address(account));
       trait = new Trait(address(traitStorage), address(svgStorage));
       character = new Character(address(trait), address(registry), address(account), address(svgStorage));
       character.mint(_owner);
-      _character1TBA = payable(registry.createAccount(address(account), block.chainid, address(character), 1, 123, ""));
+      character1TBA = TBA(payable(registry.createAccount(address(character), 1)));
       vm.stopPrank();
     }
 
@@ -43,13 +41,13 @@ contract CharacterTest is Test {
       assertEq(emptyTokenURI, svgStorage.EMPTY());
 
       // mint a trait to the TBA of character with id 1 (owned by owner)
-      trait.mint(_character1TBA);
+      trait.mint(address(character1TBA));
 
       bytes4 functionSelector = bytes4(keccak256(bytes("equip(uint256)")));
       bytes memory data = abi.encodeWithSelector(functionSelector, 1);
 
-      TBA(_character1TBA).executeCall(address(trait), 0, data);
-//
+      character1TBA.execute(address(trait), 0, data, 0);
+
       string memory tokenURI = character.tokenURI(1);
       assertNotEq(tokenURI, emptyTokenURI);
       vm.stopPrank();
