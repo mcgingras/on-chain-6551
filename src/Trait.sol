@@ -9,7 +9,7 @@ import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
 import "./TraitStorage.sol";
-import "./SVGStorage.sol";
+import "./SVGStorageBase.sol";
 import "./TraitDetailsStruct.sol";
 
 contract Trait is ERC721Enumerable, Ownable {
@@ -17,14 +17,14 @@ contract Trait is ERC721Enumerable, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenCount = Counters.Counter(1);
   TraitStorage public traitStorage;
-  SVGStorage public svgStorage;
+  SVGStorageBase public svgStorageBase;
 
   mapping (uint256 => TraitDetails) public traitDetails;
   mapping(address => mapping(string => uint256)) public equippedItems;
 
-  constructor(address _traitStorage, address _svgStorage) ERC721("Loot2: Tokenbound Trait", "Loot2:T") {
+  constructor(address _traitStorage, address _svgStorageBase) ERC721("Loot2: Tokenbound Trait", "Loot2:T") {
     traitStorage = TraitStorage(_traitStorage);
-    svgStorage = SVGStorage(_svgStorage);
+    svgStorageBase = SVGStorageBase(_svgStorageBase);
   }
 
   function getTraitDetails(uint256 tokenId) external view returns (TraitDetails memory) {
@@ -86,10 +86,10 @@ contract Trait is ERC721Enumerable, Ownable {
     TraitDetails memory data = traitDetails[tokenId];
 
     string[4] memory parts;
-    parts[0] = svgStorage.OPEN_TAG();
+    parts[0] = svgStorageBase.OPEN_TAG();
     parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base left">',data.traitType,'</text>'));
     parts[2] = string(abi.encodePacked('<text x="340" y="20" class="base right">',data.name,'</text>'));
-    parts[3] = svgStorage.CLOSE_TAG();
+    parts[3] = svgStorageBase.CLOSE_TAG();
 
     string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
 
