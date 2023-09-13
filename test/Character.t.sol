@@ -7,15 +7,17 @@ import { Character } from "../src/Character.sol";
 import { Trait } from "../src/Trait.sol";
 import { TraitStorage } from "../src/TraitStorage.sol";
 import { SVGStorage } from "../src/SVGStorage.sol";
-import { SimpleERC6551Account as TBA } from "../src/Account.sol";
-import { SimpleERC6551AccountRegistry } from "../src/Registry.sol";
+import {SimpleERC6551Account as TBA} from "../src/Account.sol";
+import { AccountGuardian } from "../lib/contracts/src/AccountGuardian.sol";
+import { EntryPoint } from "../lib/contracts/lib/account-abstraction/contracts/core/EntryPoint.sol";
+import { ERC6551Registry } from "../lib/reference/src/ERC6551Registry.sol";
 
 contract CharacterTest is Test {
     Character public character;
     Trait public trait;
     TraitStorage public traitStorage;
     SVGStorage public svgStorage;
-    SimpleERC6551AccountRegistry public registry;
+    ERC6551Registry public registry;
     TBA public account;
     TBA public character1TBA;
 
@@ -26,11 +28,11 @@ contract CharacterTest is Test {
       account = new TBA();
       svgStorage = new SVGStorage();
       traitStorage = new TraitStorage();
-      registry = new SimpleERC6551AccountRegistry(address(account));
+      registry = new ERC6551Registry();
       trait = new Trait(address(traitStorage), address(svgStorage));
       character = new Character(address(trait), address(registry), address(account), address(svgStorage));
       character.mint(_owner);
-      character1TBA = TBA(payable(registry.createAccount(address(character), 1)));
+      character1TBA = TBA(payable(registry.createAccount(address(account), block.chainid, address(character), 1, 123, "")));
       vm.stopPrank();
     }
 

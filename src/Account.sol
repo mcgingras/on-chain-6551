@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { console } from "forge-std/console.sol";
 import "openzeppelin-contracts/utils/introspection/IERC165.sol";
 import "openzeppelin-contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/interfaces/IERC1271.sol";
@@ -75,13 +74,10 @@ contract SimpleERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Exe
         )
     {
       bytes memory footer = new bytes(0x60);
-      console.logBytes(footer);
 
       assembly {
         extcodecopy(address(), add(footer, 0x20), 0x4d, 0x60)
       }
-      console.logBytes(footer);
-
 
       return abi.decode(footer, (uint256, address, uint256));
     }
