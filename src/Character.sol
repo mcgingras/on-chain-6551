@@ -8,7 +8,8 @@ import "openzeppelin-contracts/utils/Counters.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
 import "./Trait.sol";
-import "./SVGStorage.sol";
+import "./SVGStorageBase.sol";
+import "./SVGStorageEmpty.sol";
 
 // no owner protection or anything
 // purely a quick and dirty experiment
@@ -20,13 +21,21 @@ contract Character is ERC721Enumerable, Ownable {
   address public renderer;
   address public registry;
   address public implementation;
-  SVGStorage public svgStorage;
+  SVGStorageBase public svgStorageBase;
+  SVGStorageEmpty public svgStorageEmpty;
 
-  constructor(address _renderer, address _registry, address _implementation, address _svgStorage) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
+  constructor(
+      address _renderer,
+      address _registry,
+      address _implementation,
+      address _svgStorageBase,
+      address _svgStorageEmpty
+  ) ERC721("Loot2: Tokenbound Character", "LOOT2:C") {
     renderer = _renderer;
     registry = _registry;
     implementation = _implementation;
-    svgStorage = SVGStorage(_svgStorage);
+    svgStorageBase = SVGStorageBase(_svgStorageBase);
+    svgStorageEmpty = SVGStorageEmpty(_svgStorageEmpty);
   }
 
   function tokenURI(uint256 tokenId) override public view returns (string memory) {
@@ -35,14 +44,13 @@ contract Character is ERC721Enumerable, Ownable {
     address tba = registryContract.account(implementation, block.chainid, address(this), tokenId, 123);
     uint256[] memory equippedTraits = traitContract.equippedTraitsOfOwner(tba);
 
-    // pre-computed base64 encoding of "empty" SVG
     if (equippedTraits.length == 0) {
-      return svgStorage.EMPTY();
+      return svgStorageEmpty.EMPTY();
     }
 
     string[] memory parts = new string[](equippedTraits.length*2 + 2);
 
-    parts[0] = svgStorage.OPEN_TAG();
+    parts[0] = svgStorageBase.OPEN_TAG();
 
     for (uint256 index = 0; index < equippedTraits.length; index++) {
       TraitDetails memory details = traitContract.getTraitDetails(equippedTraits[index]);
@@ -56,7 +64,7 @@ contract Character is ERC721Enumerable, Ownable {
       parts[offset + 1] = string(abi.encodePacked('<text x="340" y="',y.toString(),'" class="base right">',details.name,'</text>'));
     }
 
-    parts[equippedTraits.length*2+1] = svgStorage.CLOSE_TAG();
+    parts[equippedTraits.length*2+1] = svgStorageBase.CLOSE_TAG();
 
     bytes memory buffer;
     for (uint256 i = 0; i < parts.length; i++) {
