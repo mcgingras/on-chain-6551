@@ -4,7 +4,7 @@ Attempting to create an NFT that derives it's image fully on-chain from tokens t
 
 Current state of the art for showing the contents of a 6551 is to use `animation_url` to return an iframe that is responsible for polling the contents of the TBA. An example can be found [here](https://opensea.io/assets/ethereum/0x26727ed4f5ba61d3772d1575bca011ae3aef5d36/3305). Perhaps a more elegant solution would be for the base NFT to derive it's image entirely on-chain depending on the NFTs that are in the TBA associated with the base NFT.
 
-This repo is an attempt at doing just that. It takes inspiration from [Loot](https://opensea.io/collection/lootproject) (and borrows some code... this is just meant to be a prototype.)
+This repo is an attempt at doing just that. It takes inspiration from [Loot](https://opensea.io/collection/lootproject)
 
 ### Glossary
 
@@ -21,31 +21,17 @@ These NFTs must exist in the TBA of a given base NFT to show up on the base NFT.
 
 Storage for the trait details.
 
-#### SVGStorage.sol
+#### SVGStorageBase.sol
 
 Storage for SVG details.
 
-### Notes
+#### SVGStorageEmpty.sol
 
-- This is a prototype, the solidity is quick and dirty, there are no permissions, optimizations, etc.
-- This is meant to exist as a pairing between Base and Sub. Base renders Sub NFTs that exist in it's TBA for a given registry. It is not meant to render ALL NFTs in the TBA. This is by design and is meant to serve as a motivating example for a 6551 powered NFT that is utility driven for a certain use case (perhaps a character base NFT and in game accessory sub NFTs... the point is to make the character base NFT dynamic depending on the specific sub NFTs it holds, not ALL nfts it might hold.)
-- It would be possible to create a dynamic NFT that is dependant on some other NFTs in an owners wallet, but the downside here is that if I transfer or sell the original base NFT the new owner would not get the same dynamic image since it depends on the sub NFTs that I still hold. With TBA, I can grant ownership of the sub NFTs to the base NFT's TBA, meaning if I sell or transfer the base NFT, the sub NFTs and dynamic image are not altered.
-- I'm not sure what happens if you accumulate tons and tons of sub NFTs (more than what would render in the square on opensea). Try it out!
+Storage for "empty" SVG
 
-### Examples
+## Contract Links
 
-- [Base](https://testnets.opensea.io/assets/goerli/0x746950c4cd575d641afd10cbd675b8e327ab9a3c/0)
-- [TBA holding Subs for Base](https://testnets.opensea.io/0x9Df6118285fb50499d1f541bf0Ba499f6Fe2ED63)
-- [Loom walkthrough](https://www.loom.com/share/5616f2613a2f4d48995b35b134b3eb13)
-
-### Helpful Forge Hints
-
-forge verify-contract \
- --chain-id 11155111 \
- --num-of-optimizations 1000000 \
- --watch \
- --constructor-args $(cast abi-encode "constructor(address,address)" "0x54fB0f42A415D6238aB3B96600eB3E269eAF823b" "0x7c84F7499f964965c938c44E1560E426d81080d2" 18 1000000000000000000000) \
- --etherscan-api-key <your_etherscan_api_key> \
- --compiler-version v0.8.10+commit.fc410830 \
- <the_contract_address> \
- src/MyToken.sol:MyToken
+[Trait](https://basescan.org/address/0xb7d488da393b4f34813dabeb295931a2b86ea505)
+[Registry](https://basescan.org/address/0x1b7424e264890950ddfa61c2eed28c9676b9205f)
+[Account Implementation](https://basescan.org/address/0xf21074833502cbb87d69b7e865c19852a63ca34b)
+[Character](https://basescan.org/address/0x6dE9ee54E8FF85D78E20DaE243a5D1565bF8d741)
